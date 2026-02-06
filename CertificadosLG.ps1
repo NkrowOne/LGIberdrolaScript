@@ -55,6 +55,7 @@
     if (!(Test-Path $lg)) { New-Item -ItemType Directory -Path $lg | Out-Null }
 
     $ok = 0; $er = 0; $i = 0
+    $mapa = @()
 
     foreach ($r in $rars) {
         $i++
@@ -64,11 +65,11 @@
         $tmp = Join-Path $fb.SelectedPath "tmp_$([IO.Path]::GetRandomFileName())"
         New-Item -ItemType Directory -Path $tmp | Out-Null
         & $7z x $r.FullName "-o$tmp" "-p$pr" -y 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { Write-Host "   [ERROR] Extraccion fallida" -ForegroundColor Red; $er++; Remove-Item $tmp -Recurse -Force -EA 0; continue }
+        if ($LASTEXITCODE -ne 0) { Write-Host "   [ERROR] Extraccion fallida" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname="(error extraccion)";Estado="ERROR"}; Remove-Item $tmp -Recurse -Force -EA 0; continue }
         Write-Host "   [OK] Extraido" -ForegroundColor Green
 
         $cer = Get-ChildItem -Path $tmp -Filter "*.cer" -Recurse | Select-Object -First 1
-        if (!$cer) { Write-Host "   [ERROR] No hay .cer" -ForegroundColor Red; $er++; Remove-Item $tmp -Recurse -Force -EA 0; continue }
+        if (!$cer) { Write-Host "   [ERROR] No hay .cer" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname="(sin .cer)";Estado="ERROR"}; Remove-Item $tmp -Recurse -Force -EA 0; continue }
 
         $nm = $cer.BaseName
         Write-Host "   Hostname: $nm" -ForegroundColor Gray
@@ -87,23 +88,23 @@
         if (!(Test-Path $cp)) { Write-Host "   [FALTA] $nm.cer" -ForegroundColor Red; $miss = $true }
         if (!(Test-Path $ic)) { Write-Host "   [FALTA] Iberdrola Issuing CA v3.crt" -ForegroundColor Red; $miss = $true }
         if (!(Test-Path $rc)) { Write-Host "   [FALTA] Iberdrola Root CA v3.crt" -ForegroundColor Red; $miss = $true }
-        if ($miss) { $er++; continue }
+        if ($miss) { $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
 
         $pfx = Join-Path $cd "$nm.pfx"
         if (Test-Path $kp) {
             & $ssl pkcs12 -export -out $pfx -inkey $kp -in $cp -passout "pass:$pp" 2>&1 | Out-Null
-            if (!(Test-Path $pfx)) { Write-Host "   [ERROR] .pfx" -ForegroundColor Red; $er++; continue }
+            if (!(Test-Path $pfx)) { Write-Host "   [ERROR] .pfx" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
             Write-Host "   [OK] .pfx generado" -ForegroundColor Green
         } else {
             Write-Host "   [AVISO] Sin .key, buscando .pfx existente..." -ForegroundColor Yellow
-            if (!(Test-Path $pfx)) { Write-Host "   [ERROR] No hay .key ni .pfx" -ForegroundColor Red; $er++; continue }
+            if (!(Test-Path $pfx)) { Write-Host "   [ERROR] No hay .key ni .pfx" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         }
 
         $ip = Join-Path $cd "Iberdrola Issuing CA v3.pem"
         $rp = Join-Path $cd "Iberdrola Root CA v3.pem"
         & $ssl x509 -in $ic -outform PEM -out $ip 2>&1 | Out-Null
         & $ssl x509 -in $rc -outform PEM -out $rp 2>&1 | Out-Null
-        if (!(Test-Path $ip) -or !(Test-Path $rp)) { Write-Host "   [ERROR] .crt a .pem" -ForegroundColor Red; $er++; continue }
+        if (!(Test-Path $ip) -or !(Test-Path $rp)) { Write-Host "   [ERROR] .crt a .pem" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         Write-Host "   [OK] .pem intermedios" -ForegroundColor Green
 
         $ld = Join-Path $lg $nm
@@ -115,24 +116,35 @@
         Write-Host "   [OK] ca_certificate.pem" -ForegroundColor Green
 
         & $ssl pkcs12 -in $pfx -clcerts -nokeys -out (Join-Path $ld "client_certificate.pem") -passin "pass:$pp" 2>&1 | Out-Null
-        if (!(Test-Path (Join-Path $ld "client_certificate.pem"))) { Write-Host "   [ERROR] client_certificate.pem" -ForegroundColor Red; $er++; continue }
+        if (!(Test-Path (Join-Path $ld "client_certificate.pem"))) { Write-Host "   [ERROR] client_certificate.pem" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         Write-Host "   [OK] client_certificate.pem" -ForegroundColor Green
 
         & $ssl pkcs12 -in $pfx -nocerts -nodes -out (Join-Path $ld "client_key.pem") -passin "pass:$pp" 2>&1 | Out-Null
-        if (!(Test-Path (Join-Path $ld "client_key.pem"))) { Write-Host "   [ERROR] client_key.pem" -ForegroundColor Red; $er++; continue }
+        if (!(Test-Path (Join-Path $ld "client_key.pem"))) { Write-Host "   [ERROR] client_key.pem" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         Write-Host "   [OK] client_key.pem" -ForegroundColor Green
 
         Write-Host "   [COMPLETO] $nm (3/3)" -ForegroundColor Green
         $ok++
+        $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="OK"}
     }
 
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "RESUMEN: $ok / $($rars.Count) procesados" -ForegroundColor Cyan
-    if ($er -gt 0) { Write-Host "Errores: $er" -ForegroundColor Red }
-    Write-Host "Certificados:    $cb" -ForegroundColor Gray
-    Write-Host "LG Certificates: $lg" -ForegroundColor Gray
+    Write-Host "  RESUMEN: $ok / $($rars.Count) procesados" -ForegroundColor Cyan
+    if ($er -gt 0) { Write-Host "  Errores: $er" -ForegroundColor Red }
     Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  SCTASK                   HOSTNAME                                    ESTADO" -ForegroundColor White
+    Write-Host "  ------------------------ ------------------------------------------- ------" -ForegroundColor DarkGray
+    foreach ($m in $mapa) {
+        $sc = $m.SCTASK.PadRight(24)
+        $hn = $m.Hostname.PadRight(43)
+        if ($m.Estado -eq "OK") { Write-Host "  $sc $hn" -ForegroundColor Gray -NoNewline; Write-Host " OK" -ForegroundColor Green }
+        else { Write-Host "  $sc $hn" -ForegroundColor Gray -NoNewline; Write-Host " ERROR" -ForegroundColor Red }
+    }
+    Write-Host ""
+    Write-Host "  Certificados:    $cb" -ForegroundColor DarkGray
+    Write-Host "  LG Certificates: $lg" -ForegroundColor DarkGray
     Write-Host ""
 
     $op = Read-Host "Abrir carpeta LG Certificates? (s/n)"
