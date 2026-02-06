@@ -1,0 +1,11 @@
+# Binaries
+*.exe
+*.dll
+
+# Temp files
+temp_*/
+Certificados/
+
+# Sensitive - do not commit
+*.pfx
+*.key
