@@ -31,7 +31,7 @@
     Write-Host "     certificado desde sus subcarpetas." -ForegroundColor White
     Write-Host ""
     Write-Host "  3. Los archivos finales (.pem) se generaran dentro de" -ForegroundColor White
-    Write-Host "     .\Certificados\<hostname>\<hostname>\" -ForegroundColor Gray
+    Write-Host "     .\Certificados\<hostname>\LG Cert\" -ForegroundColor Gray
     Write-Host "     junto al .pfx en la carpeta padre." -ForegroundColor White
     Write-Host ""
 
@@ -106,7 +106,7 @@
         if (!(Test-Path $ip) -or !(Test-Path $rp)) { Write-Host "   [ERROR] .crt a .pem" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         Write-Host "   [OK] .pem intermedios" -ForegroundColor Green
 
-        $ld = Join-Path $cd $nm
+        $ld = Join-Path $cd "LG Cert"
         if (!(Test-Path $ld)) { New-Item -ItemType Directory -Path $ld | Out-Null }
 
         $ic2 = (Get-Content $ip -Raw).TrimEnd("`r`n")
