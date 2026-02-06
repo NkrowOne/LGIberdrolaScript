@@ -30,9 +30,9 @@
     Write-Host "     el script necesita leer la clave privada (.key) de cada" -ForegroundColor White
     Write-Host "     certificado desde sus subcarpetas." -ForegroundColor White
     Write-Host ""
-    Write-Host "  3. Se creara una nueva carpeta 'LG Certificates' en el directorio" -ForegroundColor White
-    Write-Host "     actual ($rt)" -ForegroundColor Gray
-    Write-Host "     con los tres archivos finales de cada hostname." -ForegroundColor White
+    Write-Host "  3. Los archivos finales (.pem) se generaran dentro de" -ForegroundColor White
+    Write-Host "     .\Certificados\<hostname>\<hostname>\" -ForegroundColor Gray
+    Write-Host "     junto al .pfx en la carpeta padre." -ForegroundColor White
     Write-Host ""
 
     Read-Host "Pulsa ENTER para seleccionar la carpeta con los archivos SCTASK*.rar"
@@ -51,9 +51,7 @@
     Write-Host ""
 
     $cb = Join-Path $rt "Certificados"
-    $lg = Join-Path $rt "LG Certificates"
     if (!(Test-Path $cb)) { New-Item -ItemType Directory -Path $cb | Out-Null }
-    if (!(Test-Path $lg)) { New-Item -ItemType Directory -Path $lg | Out-Null }
 
     $ok = 0; $er = 0; $i = 0
     $mapa = @()
@@ -108,7 +106,7 @@
         if (!(Test-Path $ip) -or !(Test-Path $rp)) { Write-Host "   [ERROR] .crt a .pem" -ForegroundColor Red; $er++; $mapa += [PSCustomObject]@{SCTASK=$r.BaseName;Hostname=$nm;Estado="ERROR"}; continue }
         Write-Host "   [OK] .pem intermedios" -ForegroundColor Green
 
-        $ld = Join-Path $lg $nm
+        $ld = Join-Path $cd $nm
         if (!(Test-Path $ld)) { New-Item -ItemType Directory -Path $ld | Out-Null }
 
         $ic2 = (Get-Content $ip -Raw).TrimEnd("`r`n")
@@ -144,12 +142,11 @@
         else { Write-Host "  $sc $hn" -ForegroundColor Gray -NoNewline; Write-Host " ERROR" -ForegroundColor Red }
     }
     Write-Host ""
-    Write-Host "  Certificados:    $cb" -ForegroundColor DarkGray
-    Write-Host "  LG Certificates: $lg" -ForegroundColor DarkGray
+    Write-Host "  Certificados: $cb" -ForegroundColor DarkGray
     Write-Host ""
 
-    $op = Read-Host "Abrir carpeta LG Certificates? (s/n)"
-    if ($op -eq 's') { Start-Process explorer.exe $lg }
+    $op = Read-Host "Abrir carpeta Certificados? (s/n)"
+    if ($op -eq 's') { Start-Process explorer.exe $cb }
 
     $op2 = Read-Host "Borrar archivos RAR originales? (s/n)"
     if ($op2 -eq 's') { $rars | Remove-Item -Force; Write-Host "RAR eliminados." -ForegroundColor Red }
