@@ -7,16 +7,35 @@
     $ssl = Join-Path $rt "openssl.exe"
     if (!(Test-Path $ssl)) { $ssl = Join-Path $rt "bin\openssl.exe" }
 
-    Write-Host "`n============================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "============================================" -ForegroundColor Cyan
     Write-Host "  Certificados LG  -  Eduardo Rubio" -ForegroundColor White
-    Write-Host "============================================`n" -ForegroundColor Cyan
+    Write-Host "============================================" -ForegroundColor Cyan
+    Write-Host ""
 
     if (!(Test-Path $ssl)) { Write-Host "[!!] OpenSSL no encontrado en: $ssl" -ForegroundColor Red; return }
     else { Write-Host "[OK] OpenSSL: $ssl" -ForegroundColor Green }
     if (!(Test-Path $7z)) { Write-Host "[!!] 7-Zip no encontrado en: $7z" -ForegroundColor Red; return }
     else { Write-Host "[OK] 7-Zip:   $7z" -ForegroundColor Green }
 
-    Write-Host "`nSeleccione la carpeta con los SCTASK*.rar..." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "ANTES DE CONTINUAR, tenga en cuenta:" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  1. Todos los archivos SCTASK*.rar deben estar reunidos en" -ForegroundColor White
+    Write-Host "     una misma carpeta antes de seleccionarla." -ForegroundColor White
+    Write-Host ""
+    Write-Host "  2. La carpeta 'Certificados' debe estar en el mismo directorio" -ForegroundColor White
+    Write-Host "     desde el que se generaron las solicitudes de IT NOW, ya que" -ForegroundColor White
+    Write-Host "     el script necesita leer la clave privada (.key) de cada" -ForegroundColor White
+    Write-Host "     certificado desde sus subcarpetas." -ForegroundColor White
+    Write-Host ""
+    Write-Host "  3. Se creara una nueva carpeta 'LG Certificates' en el directorio" -ForegroundColor White
+    Write-Host "     actual ($rt)" -ForegroundColor Gray
+    Write-Host "     con los tres archivos finales de cada hostname." -ForegroundColor White
+    Write-Host ""
+
+    Read-Host "Pulsa ENTER para seleccionar la carpeta con los archivos SCTASK*.rar"
+
     $fb = New-Object System.Windows.Forms.FolderBrowserDialog
     $fb.Description = "Carpeta con archivos SCTASK*.rar"
     $fb.ShowNewFolderButton = $false
@@ -25,8 +44,10 @@
     $rars = Get-ChildItem -Path $fb.SelectedPath -Filter "SCTASK*.rar" -File
     if ($rars.Count -eq 0) { Write-Host "[!!] No hay SCTASK*.rar en esa carpeta." -ForegroundColor Red; return }
 
+    Write-Host ""
     Write-Host "[OK] Carpeta: $($fb.SelectedPath)" -ForegroundColor Green
-    Write-Host "[OK] Archivos: $($rars.Count)`n" -ForegroundColor Green
+    Write-Host "[OK] Archivos encontrados: $($rars.Count)" -ForegroundColor Green
+    Write-Host ""
 
     $cb = Join-Path $rt "Certificados"
     $lg = Join-Path $rt "LG Certificates"
@@ -105,12 +126,14 @@
         $ok++
     }
 
-    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "RESUMEN: $ok / $($rars.Count) procesados" -ForegroundColor Cyan
     if ($er -gt 0) { Write-Host "Errores: $er" -ForegroundColor Red }
     Write-Host "Certificados:    $cb" -ForegroundColor Gray
     Write-Host "LG Certificates: $lg" -ForegroundColor Gray
-    Write-Host "========================================`n" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
 
     $op = Read-Host "Abrir carpeta LG Certificates? (s/n)"
     if ($op -eq 's') { Start-Process explorer.exe $lg }
