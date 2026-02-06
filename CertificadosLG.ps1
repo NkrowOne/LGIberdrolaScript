@@ -7,7 +7,6 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-# --- Configuracion ---
 $SevenZip = "C:\Program Files\7-Zip\7z.exe"
 $PassRAR  = 'Larraskitu48!'
 $PassPFX  = 'DIGITALSIGNAGE'
@@ -15,7 +14,6 @@ $Root     = (Get-Location).Path
 $OpenSSL  = Join-Path $Root "openssl.exe"
 if (!(Test-Path $OpenSSL)) { $OpenSSL = Join-Path $Root "bin\openssl.exe" }
 
-# --- Colores y Fuentes ---
 $ColorFondo       = [System.Drawing.Color]::FromArgb(22, 24, 30)
 $ColorPanel        = [System.Drawing.Color]::FromArgb(32, 35, 44)
 $ColorPanelHover   = [System.Drawing.Color]::FromArgb(42, 46, 58)
@@ -38,9 +36,6 @@ $FuenteMono    = New-Object System.Drawing.Font("Consolas", 9.5)
 $FuenteEstado  = New-Object System.Drawing.Font("Segoe UI Semibold", 10)
 $FuenteSeccion = New-Object System.Drawing.Font("Segoe UI Semibold", 8.5)
 
-# ===============================================================
-# FORMULARIO PRINCIPAL
-# ===============================================================
 $Form = New-Object System.Windows.Forms.Form
 $Form.Text = "Certificados LG  -  Eduardo Rubio"
 $Form.Size = New-Object System.Drawing.Size(780, 700)
@@ -51,7 +46,6 @@ $Form.BackColor = $ColorFondo
 $Form.Font = $FuenteNormal
 $Form.ForeColor = $ColorTexto
 
-# --- Header ---
 $PanelHeader = New-Object System.Windows.Forms.Panel
 $PanelHeader.Size = New-Object System.Drawing.Size(780, 64)
 $PanelHeader.Location = New-Object System.Drawing.Point(0, 0)
@@ -80,7 +74,6 @@ $LineaAcento.Location = New-Object System.Drawing.Point(0, 64)
 $LineaAcento.BackColor = $ColorAcento
 $Form.Controls.Add($LineaAcento)
 
-# --- Seccion: Carpeta RAR ---
 $LblRarTitulo = New-Object System.Windows.Forms.Label
 $LblRarTitulo.Text = "CARPETA DE ARCHIVOS RAR"
 $LblRarTitulo.Font = $FuenteSeccion
@@ -125,7 +118,6 @@ $BtnExaminar.Font = $FuentePequena
 $BtnExaminar.Cursor = [System.Windows.Forms.Cursors]::Hand
 $PanelRuta.Controls.Add($BtnExaminar)
 
-# --- Info Panel (OpenSSL + 7zip status) ---
 $PanelInfo = New-Object System.Windows.Forms.Panel
 $PanelInfo.Size = New-Object System.Drawing.Size(720, 50)
 $PanelInfo.Location = New-Object System.Drawing.Point(25, 156)
@@ -143,7 +135,7 @@ $sslOk = Test-Path $OpenSSL
 $zipOk = Test-Path $SevenZip
 
 $LblSSL = New-Object System.Windows.Forms.Label
-$LblSSL.Text = if ($sslOk) { "[OK]  OpenSSL encontrado" } else { "[!!]  OpenSSL no encontrado" }
+$LblSSL.Text = if ($sslOk) { "[OK] OpenSSL encontrado" } else { "[!!] OpenSSL no encontrado" }
 $LblSSL.Font = $FuentePequena
 $LblSSL.ForeColor = if ($sslOk) { $ColorVerde } else { $ColorRojo }
 $LblSSL.AutoSize = $true
@@ -159,7 +151,7 @@ $LblSSLPath.Location = New-Object System.Drawing.Point(15, 28)
 $PanelInfo.Controls.Add($LblSSLPath)
 
 $Lbl7z = New-Object System.Windows.Forms.Label
-$Lbl7z.Text = if ($zipOk) { "[OK]  7-Zip encontrado" } else { "[!!]  7-Zip no encontrado" }
+$Lbl7z.Text = if ($zipOk) { "[OK] 7-Zip encontrado" } else { "[!!] 7-Zip no encontrado" }
 $Lbl7z.Font = $FuentePequena
 $Lbl7z.ForeColor = if ($zipOk) { $ColorVerde } else { $ColorRojo }
 $Lbl7z.AutoSize = $true
@@ -174,7 +166,6 @@ $Lbl7zPath.AutoSize = $true
 $Lbl7zPath.Location = New-Object System.Drawing.Point(400, 28)
 $PanelInfo.Controls.Add($Lbl7zPath)
 
-# --- Rutas de salida (informativo) ---
 $LblRutasTitulo = New-Object System.Windows.Forms.Label
 $LblRutasTitulo.Text = "RUTAS DE SALIDA"
 $LblRutasTitulo.Font = $FuenteSeccion
@@ -184,7 +175,7 @@ $LblRutasTitulo.Location = New-Object System.Drawing.Point(25, 218)
 $Form.Controls.Add($LblRutasTitulo)
 
 $LblRutaCerts = New-Object System.Windows.Forms.Label
-$LblRutaCerts.Text = "Certificados:      ./Certificados/<hostname>/   (extraccion + .pfx + .pem intermedios)"
+$LblRutaCerts.Text = "Certificados:      .\Certificados\<hostname>\   (extraccion + .pfx + .pem intermedios)"
 $LblRutaCerts.Font = $FuentePequena
 $LblRutaCerts.ForeColor = $ColorTextoClaro
 $LblRutaCerts.AutoSize = $true
@@ -192,14 +183,13 @@ $LblRutaCerts.Location = New-Object System.Drawing.Point(25, 238)
 $Form.Controls.Add($LblRutaCerts)
 
 $LblRutaLG = New-Object System.Windows.Forms.Label
-$LblRutaLG.Text = "LG Certificates:   ./LG Certificates/<hostname>/  (ca_certificate + client_certificate + client_key)"
+$LblRutaLG.Text = "LG Certificates:   .\LG Certificates\<hostname>\  (ca_certificate + client_certificate + client_key)"
 $LblRutaLG.Font = $FuentePequena
 $LblRutaLG.ForeColor = $ColorTextoClaro
 $LblRutaLG.AutoSize = $true
 $LblRutaLG.Location = New-Object System.Drawing.Point(25, 256)
 $Form.Controls.Add($LblRutaLG)
 
-# --- Log de actividad ---
 $LblLogTitulo = New-Object System.Windows.Forms.Label
 $LblLogTitulo.Text = "REGISTRO DE ACTIVIDAD"
 $LblLogTitulo.Font = $FuenteSeccion
@@ -219,7 +209,6 @@ $TxtLog.BorderStyle = "None"
 $TxtLog.ScrollBars = "Vertical"
 $Form.Controls.Add($TxtLog)
 
-# --- Barra de progreso ---
 $ProgressBack = New-Object System.Windows.Forms.Panel
 $ProgressBack.Size = New-Object System.Drawing.Size(720, 5)
 $ProgressBack.Location = New-Object System.Drawing.Point(25, 540)
@@ -248,7 +237,6 @@ $LblContador.AutoSize = $true
 $LblContador.Location = New-Object System.Drawing.Point(640, 553)
 $Form.Controls.Add($LblContador)
 
-# --- Botones inferiores ---
 $BtnProcesar = New-Object System.Windows.Forms.Button
 $BtnProcesar.Text = ">  PROCESAR"
 $BtnProcesar.Size = New-Object System.Drawing.Size(190, 46)
@@ -303,10 +291,6 @@ $BtnSalir.Font = $FuentePequena
 $BtnSalir.Cursor = [System.Windows.Forms.Cursors]::Hand
 $Form.Controls.Add($BtnSalir)
 
-# ===============================================================
-# FUNCIONES
-# ===============================================================
-
 $script:RarFolder = ""
 $script:RarFiles  = @()
 $script:LGDest    = ""
@@ -333,7 +317,6 @@ function SetEstado($texto, $color) {
     $Form.Refresh()
 }
 
-# --- Examinar ---
 $BtnExaminar.Add_Click({
     $fb = New-Object System.Windows.Forms.FolderBrowserDialog
     $fb.Description = "Seleccione la carpeta con los archivos SCTASK*.rar"
@@ -341,10 +324,8 @@ $BtnExaminar.Add_Click({
     if ($fb.ShowDialog() -eq 'OK') {
         $script:RarFolder = $fb.SelectedPath
         $script:RarFiles = Get-ChildItem -Path $script:RarFolder -Filter "SCTASK*.rar" -File
-
         $TxtRuta.Text = $script:RarFolder
         $TxtRuta.ForeColor = $ColorTexto
-
         if ($script:RarFiles.Count -eq 0) {
             SetEstado "Sin archivos SCTASK*.rar en esa carpeta" $ColorAmarillo
             $BtnProcesar.Enabled = $false
@@ -354,11 +335,8 @@ $BtnExaminar.Add_Click({
         } else {
             $canRun = $sslOk -and $zipOk
             $BtnProcesar.Enabled = $canRun
-            if (!$canRun) {
-                SetEstado "Faltan dependencias (ver panel superior)" $ColorRojo
-            } else {
-                SetEstado "Listo para procesar" $ColorVerde
-            }
+            if (!$canRun) { SetEstado "Faltan dependencias (ver panel superior)" $ColorRojo }
+            else { SetEstado "Listo para procesar" $ColorVerde }
             $TxtLog.Clear()
             Log "Carpeta seleccionada: $($script:RarFolder)" $ColorTexto
             Log "Archivos encontrados: $($script:RarFiles.Count)" $ColorAcento
@@ -371,7 +349,6 @@ $BtnExaminar.Add_Click({
     }
 })
 
-# --- Hover effects ---
 $BtnExaminar.Add_MouseEnter({ $BtnExaminar.BackColor = $ColorAcentoHover })
 $BtnExaminar.Add_MouseLeave({ $BtnExaminar.BackColor = $ColorAcento })
 $BtnProcesar.Add_MouseEnter({ if ($BtnProcesar.Enabled) { $BtnProcesar.BackColor = $ColorAcentoHover } })
@@ -383,7 +360,6 @@ $BtnBorrar.Add_MouseLeave({ $BtnBorrar.BackColor = $ColorPanel })
 $BtnSalir.Add_MouseEnter({ $BtnSalir.BackColor = $ColorPanelHover })
 $BtnSalir.Add_MouseLeave({ $BtnSalir.BackColor = $ColorPanel })
 
-# --- PROCESAR ---
 $BtnProcesar.Add_Click({
     $BtnProcesar.Enabled = $false
     $BtnExaminar.Enabled = $false
@@ -392,21 +368,18 @@ $BtnProcesar.Add_Click({
     $TxtLog.Clear()
     SetProgress 0
 
-    # ./Certificados (junto al script / directorio de ejecucion)
     $CertBase = Join-Path $Root "Certificados"
-    # ./LG Certificates (en la RAIZ donde se ejecuta el PS)
     $script:LGDest = Join-Path $Root "LG Certificates"
-
     if (!(Test-Path $CertBase))      { New-Item -ItemType Directory -Path $CertBase | Out-Null }
     if (!(Test-Path $script:LGDest)) { New-Item -ItemType Directory -Path $script:LGDest | Out-Null }
 
-    $total      = $script:RarFiles.Count
+    $total = $script:RarFiles.Count
     $procesados = 0
-    $errores    = 0
-    $i          = 0
+    $errores = 0
+    $i = 0
 
     Log "Iniciando procesamiento de $total archivo(s)..." $ColorAcento
-    Log ("=" * 56) $ColorBorde
+    Log "========================================================" $ColorBorde
     Log "" $ColorTexto
 
     foreach ($Rar in $script:RarFiles) {
@@ -414,13 +387,10 @@ $BtnProcesar.Add_Click({
         $pctBase = (($i - 1) / $total) * 100
         $LblContador.Text = "$i / $total"
         SetEstado "Procesando: $($Rar.Name)" $ColorAcento
-
         Log "[$i/$total] $($Rar.Name)" $ColorAcento
 
-        # --- 1. Extraer RAR a carpeta temporal ---
         $TmpDir = Join-Path $script:RarFolder "temp_$([System.IO.Path]::GetRandomFileName())"
         New-Item -ItemType Directory -Path $TmpDir | Out-Null
-
         & $SevenZip x $Rar.FullName "-o$TmpDir" "-p$PassRAR" -y 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
             Log "   [ERROR] No se pudo extraer el RAR" $ColorRojo
@@ -432,7 +402,6 @@ $BtnProcesar.Add_Click({
         }
         Log "   [OK] Extraido" $ColorVerde
 
-        # --- 2. Localizar .cer para obtener el hostname ---
         $CerFile = Get-ChildItem -Path $TmpDir -Filter "*.cer" -Recurse | Select-Object -First 1
         if (!$CerFile) {
             Log "   [ERROR] No se encontro archivo .cer dentro del RAR" $ColorRojo
@@ -446,12 +415,9 @@ $BtnProcesar.Add_Click({
         $CerName = $CerFile.BaseName
         Log "   Hostname: $CerName" $ColorTextoClaro
 
-        # --- 3. Mover archivos a ./Certificados/<hostname>/ ---
-        #     La .key ya puede estar ahi de antes; los .cer/.crt vienen del RAR
         $CertDir = Join-Path $CertBase $CerName
         if (!(Test-Path $CertDir)) { New-Item -ItemType Directory -Path $CertDir | Out-Null }
 
-        # Mover todo excepto .rsp y .req del RAR extraido
         Get-ChildItem -Path $TmpDir -Recurse -File |
             Where-Object { $_.Extension -notin '.rsp','.req' } |
             ForEach-Object { Move-Item $_.FullName -Destination $CertDir -Force }
@@ -459,115 +425,77 @@ $BtnProcesar.Add_Click({
 
         SetProgress ($pctBase + (1/$total)*15)
 
-        # --- 4. Verificar archivos necesarios ---
         $CerPath    = Join-Path $CertDir "$CerName.cer"
         $KeyPath    = Join-Path $CertDir "$CerName.key"
         $IssuingCrt = Join-Path $CertDir "Iberdrola Issuing CA v3.crt"
         $RootCrt    = Join-Path $CertDir "Iberdrola Root CA v3.crt"
 
         $ok = $true
-        if (!(Test-Path $CerPath)) {
-            Log "   [FALTA] $CerName.cer" $ColorRojo; $ok = $false
-        }
-        if (!(Test-Path $IssuingCrt)) {
-            Log "   [FALTA] Iberdrola Issuing CA v3.crt" $ColorRojo; $ok = $false
-        }
-        if (!(Test-Path $RootCrt)) {
-            Log "   [FALTA] Iberdrola Root CA v3.crt" $ColorRojo; $ok = $false
-        }
-        if (!$ok) {
-            Log "" $ColorTexto; $errores++
-            SetProgress (($i / $total) * 100)
-            continue
-        }
+        if (!(Test-Path $CerPath))    { Log "   [FALTA] $CerName.cer" $ColorRojo; $ok = $false }
+        if (!(Test-Path $IssuingCrt)) { Log "   [FALTA] Iberdrola Issuing CA v3.crt" $ColorRojo; $ok = $false }
+        if (!(Test-Path $RootCrt))    { Log "   [FALTA] Iberdrola Root CA v3.crt" $ColorRojo; $ok = $false }
+        if (!$ok) { Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue }
 
-        # --- 5. Generar .pfx (si hay .key) ---
         $PfxPath = Join-Path $CertDir "$CerName.pfx"
         if (Test-Path $KeyPath) {
             Log "   Generando .pfx ..." $ColorTextoSub
             & $OpenSSL pkcs12 -export -out $PfxPath -inkey $KeyPath -in $CerPath -passout "pass:$PassPFX" 2>&1 | Out-Null
             if (!(Test-Path $PfxPath)) {
-                Log "   [ERROR] Fallo al generar .pfx" $ColorRojo
-                Log "" $ColorTexto; $errores++
-                SetProgress (($i / $total) * 100)
-                continue
+                Log "   [ERROR] Fallo al generar .pfx" $ColorRojo; Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue
             }
             Log "   [OK] .pfx generado" $ColorVerde
         } else {
-            Log "   [AVISO] Sin .key en $CertDir - buscando .pfx existente..." $ColorAmarillo
+            Log "   [AVISO] Sin .key - buscando .pfx existente..." $ColorAmarillo
             if (!(Test-Path $PfxPath)) {
-                Log "   [ERROR] No hay .key ni .pfx disponible" $ColorRojo
-                Log "" $ColorTexto; $errores++
-                SetProgress (($i / $total) * 100)
-                continue
+                Log "   [ERROR] No hay .key ni .pfx disponible" $ColorRojo; Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue
             }
             Log "   [OK] .pfx existente encontrado" $ColorVerde
         }
 
         SetProgress ($pctBase + (1/$total)*30)
 
-        # --- 6. Convertir .crt -> .pem ---
         $IssuingPem = Join-Path $CertDir "Iberdrola Issuing CA v3.pem"
         $RootPem    = Join-Path $CertDir "Iberdrola Root CA v3.pem"
         Log "   Convirtiendo .crt a .pem ..." $ColorTextoSub
         & $OpenSSL x509 -in $IssuingCrt -outform PEM -out $IssuingPem 2>&1 | Out-Null
         & $OpenSSL x509 -in $RootCrt    -outform PEM -out $RootPem    2>&1 | Out-Null
         if (!(Test-Path $IssuingPem) -or !(Test-Path $RootPem)) {
-            Log "   [ERROR] Conversion .crt a .pem fallida" $ColorRojo
-            Log "" $ColorTexto; $errores++
-            SetProgress (($i / $total) * 100)
-            continue
+            Log "   [ERROR] Conversion .crt a .pem fallida" $ColorRojo; Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue
         }
         Log "   [OK] .pem intermedios generados" $ColorVerde
 
         SetProgress ($pctBase + (1/$total)*50)
 
-        # --- 7. Crear carpeta LG: ./LG Certificates/<hostname>/ ---
         $LGDir = Join-Path $script:LGDest $CerName
         if (!(Test-Path $LGDir)) { New-Item -ItemType Directory -Path $LGDir | Out-Null }
 
-        # --- 8. ca_certificate.pem (Issuing + Root concatenados) ---
         Log "   Generando ca_certificate.pem ..." $ColorTextoSub
         $IssContent  = (Get-Content $IssuingPem -Raw).TrimEnd("`r`n")
         $RootContent = (Get-Content $RootPem    -Raw).TrimEnd("`r`n")
-        [System.IO.File]::WriteAllText(
-            (Join-Path $LGDir "ca_certificate.pem"),
-            "$IssContent`r`n$RootContent`r`n",
-            [System.Text.UTF8Encoding]::new($false)
-        )
+        [System.IO.File]::WriteAllText((Join-Path $LGDir "ca_certificate.pem"), "$IssContent`r`n$RootContent`r`n", [System.Text.UTF8Encoding]::new($false))
         Log "   [OK] ca_certificate.pem" $ColorVerde
 
         SetProgress ($pctBase + (1/$total)*70)
 
-        # --- 9. client_certificate.pem ---
         Log "   Generando client_certificate.pem ..." $ColorTextoSub
         $ClientCert = Join-Path $LGDir "client_certificate.pem"
         & $OpenSSL pkcs12 -in $PfxPath -clcerts -nokeys -out $ClientCert -passin "pass:$PassPFX" 2>&1 | Out-Null
         if (!(Test-Path $ClientCert)) {
-            Log "   [ERROR] client_certificate.pem" $ColorRojo
-            Log "" $ColorTexto; $errores++
-            SetProgress (($i / $total) * 100)
-            continue
+            Log "   [ERROR] client_certificate.pem" $ColorRojo; Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue
         }
         Log "   [OK] client_certificate.pem" $ColorVerde
 
         SetProgress ($pctBase + (1/$total)*85)
 
-        # --- 10. client_key.pem ---
         Log "   Generando client_key.pem ..." $ColorTextoSub
         $ClientKey = Join-Path $LGDir "client_key.pem"
         & $OpenSSL pkcs12 -in $PfxPath -nocerts -nodes -out $ClientKey -passin "pass:$PassPFX" 2>&1 | Out-Null
         if (!(Test-Path $ClientKey)) {
-            Log "   [ERROR] client_key.pem" $ColorRojo
-            Log "" $ColorTexto; $errores++
-            SetProgress (($i / $total) * 100)
-            continue
+            Log "   [ERROR] client_key.pem" $ColorRojo; Log "" $ColorTexto; $errores++; SetProgress (($i / $total) * 100); continue
         }
         Log "   [OK] client_key.pem" $ColorVerde
 
-        # --- 11. Verificar carpeta LG completa ---
-        $LGOk = @("ca_certificate.pem","client_certificate.pem","client_key.pem") |
-            Where-Object { Test-Path (Join-Path $LGDir $_) }
+        $LGOk = @("ca_certificate.pem","client_certificate.pem","client_key.pem") | Where-Object { Test-Path (Join-Path $LGDir $_) }
         if ($LGOk.Count -eq 3) {
             Log "   -----------------------------------------------" $ColorVerde
             Log "   [COMPLETO] $CerName  (3/3 archivos LG)" $ColorVerde
@@ -581,46 +509,30 @@ $BtnProcesar.Add_Click({
         SetProgress (($i / $total) * 100)
     }
 
-    # --- Resumen final ---
-    Log ("=" * 56) $ColorBorde
+    Log "========================================================" $ColorBorde
     Log "" $ColorTexto
     Log "RESUMEN: $procesados / $total procesados correctamente" $ColorAcento
-    if ($errores -gt 0) {
-        Log "Errores: $errores" $ColorRojo
-    }
+    if ($errores -gt 0) { Log "Errores: $errores" $ColorRojo }
     Log "" $ColorTexto
     Log "Certificados:    $CertBase" $ColorTextoSub
     Log "LG Certificates: $($script:LGDest)" $ColorTextoSub
 
     SetProgress 100
     $LblContador.Text = "$procesados / $total"
-
-    if ($errores -eq 0) {
-        SetEstado "[OK] Completado sin errores" $ColorVerde
-    } else {
-        SetEstado "[!!] Completado con $errores error(es)" $ColorAmarillo
-    }
+    if ($errores -eq 0) { SetEstado "[OK] Completado sin errores" $ColorVerde }
+    else { SetEstado "[!!] Completado con $errores error(es)" $ColorAmarillo }
 
     $BtnAbrir.Enabled = $true
     $BtnBorrar.Enabled = $true
     $BtnExaminar.Enabled = $true
 })
 
-# --- Abrir carpeta LG ---
 $BtnAbrir.Add_Click({
-    if ($script:LGDest -and (Test-Path $script:LGDest)) {
-        Start-Process explorer.exe $script:LGDest
-    }
+    if ($script:LGDest -and (Test-Path $script:LGDest)) { Start-Process explorer.exe $script:LGDest }
 })
 
-# --- Borrar RAR ---
 $BtnBorrar.Add_Click({
-    $confirm = [System.Windows.Forms.MessageBox]::Show(
-        "Eliminar $($script:RarFiles.Count) archivo(s) RAR originales?`n`nEsta accion no se puede deshacer.",
-        "Confirmar eliminacion",
-        [System.Windows.Forms.MessageBoxButtons]::YesNo,
-        [System.Windows.Forms.MessageBoxIcon]::Warning
-    )
+    $confirm = [System.Windows.Forms.MessageBox]::Show("Eliminar $($script:RarFiles.Count) archivo(s) RAR originales?`n`nEsta accion no se puede deshacer.", "Confirmar eliminacion", [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
     if ($confirm -eq 'Yes') {
         $script:RarFiles | Remove-Item -Force
         Log "" $ColorTexto
@@ -629,8 +541,5 @@ $BtnBorrar.Add_Click({
     }
 })
 
-# --- Salir ---
 $BtnSalir.Add_Click({ $Form.Close() })
-
-# --- Mostrar ---
 $Form.ShowDialog() | Out-Null
