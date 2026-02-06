@@ -9,7 +9,8 @@
 
     Write-Host ""
     Write-Host "============================================" -ForegroundColor Cyan
-    Write-Host "  Certificados LG  -  Eduardo Rubio" -ForegroundColor White
+    Write-Host "  Certificados LG  -  Pentatel S.L." -ForegroundColor White
+    Write-Host "  Disenado por Eduardo Rubio" -ForegroundColor DarkGray
     Write-Host "============================================" -ForegroundColor Cyan
     Write-Host ""
 
