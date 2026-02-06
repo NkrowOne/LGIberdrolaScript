@@ -1,8 +1,26 @@
-# Certificados LG - Generador automatico
+CERTIFICADOS LG - INSTRUCCIONES
+Pentatel S.L. | Disenado por Eduardo Rubio
+===========================================
 
-**Pentatel S.L.** | Disenado por Eduardo Rubio
+1. Abre PowerShell (Windows Terminal recomendado) en la carpeta donde
+   esta openssl.exe.
 
----
+2. Asegurate de que la carpeta "Certificados" sigue en ese mismo
+   directorio. El script necesita leer las claves privadas (.key)
+   que se generaron antes de enviar las solicitudes a IT NOW.
+
+3. Los archivos SCTASK*.rar pueden estar en cualquier carpeta
+   (Descargas, Escritorio, etc.). Solo necesitas que esten todos
+   juntos. El script te abrira un selector para elegir donde estan.
+
+4. Copia todo el contenido de Certificados_LG.ps1, pegalo en la
+   terminal y se ejecutara automaticamente.
+
+5. Al terminar, se creara la carpeta "LG Certificates" junto a
+   openssl.exe con los archivos finales de cada hostname:
+   - ca_certificate.pem
+   - client_certificate.pem
+   - client_key.pem
 
 ## Requisitos
 
